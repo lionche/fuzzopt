@@ -2,10 +2,10 @@ from MySqlConn import MyPymysqlPool
 
 mysql = MyPymysqlPool()
 
-sqlAll = "select * from Table_Testbed;"
 
 sql = 'insert into Table_Testbed (Testbed_name, Testbed_version,Testbed_location,Remark) VALUES (%s,%s,%s,%s);'
-args = [('v8', '9.9.1','/root/.jsvu/v8','null'),
+
+args = [('v8', '9.9.1','/root/.jsvu/v8',None),
         ('spiderMonkey', 'JavaScript-C96.0', '/root/.jsvu/spidermonkey', None),
         ('chakra', 'ch version 1.11.24.0', '/root/.jsvu/ch', None),
         ('jsc', 'v286936', '/root/.jsvu/javascriptcore', None),
