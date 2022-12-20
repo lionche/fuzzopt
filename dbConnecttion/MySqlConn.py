@@ -2,7 +2,7 @@ import pymysql, os, configparser
 from pymysql.cursors import DictCursor
 from dbutils.pooled_db import PooledDB
 
-from dbConnecttion.DatabaseConfig import *
+from DatabaseConfig import *
 
 
 class MyPymysqlPool():
@@ -168,7 +168,7 @@ class MyPymysqlPool():
 if __name__ == '__main__':
     mysql = MyPymysqlPool()
 
-    sqlAll = "select * from table_name;"
+    sqlAll = "select * from Table_Testbed;"
     result = mysql.getAll(sqlAll)
     print(result)
 

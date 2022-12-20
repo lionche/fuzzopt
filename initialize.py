@@ -10,7 +10,7 @@ class Django_work(object):
 
 
     def makemigrationsAndMigrate(self):
-        self.runShell('python /root/fuzzopt/web/manage.py makemigrations && python /root/fuzzopt/web/manage.py migrate')
+        self.runShell('python /root/fuzzopt/web/manage.py makemigrations && python /root/fuzzopt/web/manage.py migrate && python /root/fuzzopt/dbConnecttion/InitEngineDatabase.py')
 
     def runserver(self):
         self.runShell('nohup python /root/Comfort_all/web/manage.py runserver 0.0.0.0:10102 &')
