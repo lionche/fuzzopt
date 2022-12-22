@@ -7,17 +7,17 @@ import time
 import sys
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def generationTextPipe(model_name_or_path="/root/fuzzopt/data/train_model/distilgpt2_finetune/checkpoint-640000",
-                       prefixList=["""function("""],
+                       prefixList=None,
                        num_return_sequences=50,
                        max_length=512,
                        temperature=1,
-                       p=0.9,
-                       k=0,
                        ):
+    if prefixList is None:
+        prefixList = ["""function("""]
     start = time.time()
 
     print(f'正在加载模型,大约需要10秒,请稍等')
@@ -29,7 +29,7 @@ def generationTextPipe(model_name_or_path="/root/fuzzopt/data/train_model/distil
     print("模型加载完成：", time.time() - start)
 
     allGeneration = generator(prefixList, num_return_sequences=num_return_sequences, max_length=max_length,
-                              pad_token_id=tokenizer.eos_token_id, temperature=temperature, k=k, p=p)
+                              pad_token_id=tokenizer.eos_token_id, temperature=temperature)
     allFunctions = []
 
     for generationItem in allGeneration:
