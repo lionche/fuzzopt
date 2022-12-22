@@ -10,10 +10,10 @@ class Django_work(object):
 
 
     def makemigrationsAndMigrate(self):
-        self.runShell('python /root/fuzzopt/web/manage.py makemigrations && python /root/fuzzopt/web/manage.py migrate && python /root/fuzzopt/dbConnecttion/InitEngineDatabase.py')
+        self.runShell('python /root/fuzzopt/web/manage.py makemigrations && python /root/fuzzopt/web/manage.py migrate && python /root/fuzzopt/dbConnecttion/InitEngineDatabase.py && python /root/fuzzopt/dbConnecttion/InitFunctionDatabase.py')
 
     def runserver(self):
-        self.runShell('nohup python /root/Comfort_all/web/manage.py runserver 0.0.0.0:10102 &')
+        self.runShell('nohup python /root/fuzzopt/web/manage.py runserver 0.0.0.0:10102 &')
 
 
 class Menu(object):
