@@ -156,7 +156,7 @@ def adjust_length_to_model(length, max_sequence_length):
     return length
 
 
-def generate(model_name_or_path="/root/uzzopt/data/train_model/distilgpt2_finetune",
+def generate(model_name_or_path="/root/fuzzopt/data/train_model/distilgpt2_finetune",
          prompt="function(",
          num_return_sequences=5,
          length=512):

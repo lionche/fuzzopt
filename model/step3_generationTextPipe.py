@@ -7,10 +7,10 @@ import time
 import sys
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
-def generationTextPipe(model_name_or_path="/root/fuzzopt/data/train_model/distilgpt2_finetune/checkpoint-160000",
+def generationTextPipe(model_name_or_path="/root/fuzzopt/data/train_model/distilgpt2_finetune/checkpoint-640000",
                        prefixList=["""function("""],
                        num_return_sequences=50,
                        max_length=512,
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     prefixList = []
 
     prefix1 = """function("""
-    prefix2 = """function(a,"""
+    # prefix2 = """function(a,"""
     # prefix3 = """function(b,"""
     # prefix4 = """function(c,"""
     # prefix5 = """function(d,"""
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     # prefix14 = """function(w,"""
     # prefix15 = """function(e,"""
     prefixList.append(prefix1)
-    prefixList.append(prefix2)
+    # prefixList.append(prefix2)
     # prefixList.append(prefix4)
     # prefixList.append(prefix5)
     # prefixList.append(prefix6)
