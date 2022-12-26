@@ -2,7 +2,7 @@ import pymysql, os, configparser
 from pymysql.cursors import DictCursor
 from dbutils.pooled_db import PooledDB
 
-from DatabaseConfig import *
+from dbConnecttion.DatabaseConfig import *
 
 
 class MyPymysqlPool():
