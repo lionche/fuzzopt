@@ -18,7 +18,6 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('testcase', views.show_testcase),
     path('harness', views.harness),
     path('herness_ajax/', views.herness_ajax),
     path('remark_ajax/', views.remark_ajax),

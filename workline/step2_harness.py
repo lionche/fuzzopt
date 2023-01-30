@@ -9,7 +9,6 @@ from pathlib import Path
 from tqdm import tqdm
 
 from dbConnecttion.Table_Operation import Table_Testcase
-from workline.harness_tools.harness_for_web import harness_testcase
 
 BASE_DIR = str(Path(__file__).resolve().parent.parent)
 sys.path.append(BASE_DIR)

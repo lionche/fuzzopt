@@ -459,18 +459,7 @@
         })
     })
 
-
-    const testbed_info = {
-        1: 'v8',
-        2: 'spiderMonkey',
-        3: 'chakra',
-        4: 'jsc',
-        5: 'quickjs',
-        6: 'jerryscript',
-        7: 'graaljs',
-        8: 'hermes',
-        9: 'chakra-beta'
-    };
+    
     {#更新差分结果表#}
 
     function createTable_harness_result(obj) {
@@ -511,7 +500,8 @@
                 + "<tr>"
                 + firstTd
                 + tdHeadStr + ">" + data[i].testbed_id + "</td>"
-                + tdHeadStr + ">" + testbed_info[data[i].testbed_id] + "</td>"
+                {#+ tdHeadStr + ">" + testbed_info[data[i].testbed_id] + "</td>"#}
+                + tdHeadStr + ">" + data[i].testbed_name + "</td>"
                 + tdHeadStr + " id='stdout_td_id'><code><p style='white-space:pre'>" + stdout_content + "</p></code></td>"
                 + tdHeadStr + " id='stderr_td_id'><code><p style='white-space:pre'>" + data[i].stderr + "</p></code></td>"
                 + tdHeadStr + ">" + data[i].returncode + "</td>"
@@ -561,7 +551,8 @@
                     + firstTd
                     + "<td>" + obj[i].error_type + "</td>"
                     + "<td>" + obj[i].testbed_id + "</td>"
-                    + "<td>" + testbed_info[obj[i].testbed_id] + "</td>"
+                    {#+ "<td>" + testbed_info[obj[i].testbed_id] + "</td>"#}
+                    + "<td>" + obj[i].testbed_name + "</td>"
                     + "</tr>";
             }
 

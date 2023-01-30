@@ -15,8 +15,8 @@ import re
 
 class Testcase_Object(object):
     def __init__(self, Testcase_item):
-        self.id = Testcase_item.get('id')
-        self.Testcase_context = str(Testcase_item.get('Testcase_context'), 'utf-8')
+        self.Id = Testcase_item.get('id')
+        self.Testcase_context: str = str(Testcase_item.get('Testcase_context'), 'utf-8')
         self.SourceFun_id = Testcase_item.get('SourceFun_id')
         self.SourceTestcase_id = Testcase_item.get('SourceTestcase_id')
         self.Fuzzing_times = Testcase_item.get('Fuzzing_times')
@@ -26,23 +26,19 @@ class Testcase_Object(object):
         self.Engine_coverage: str = Testcase_item.get('Engine_coverage')
         self.Engine_coverage_integration_source: str = Testcase_item.get('Engine_coverage_integration_source')
         self.Engine_coverage_integration_all: str = Testcase_item.get('Engine_coverage_integration_all')
-        self.Probability = Testcase_item.get('Probability')
+        self.Probability = Testcase_item.get('Testcase_item')
         self.Remark = Testcase_item.get('Remark')
-        # self.source_function_object = self.get_function_content()
-        # self.testcase_list = self.getAllTestcase_list()
-        self.testcase_list = []
+        self.source_function_object = self.get_function_content()
+        self.testcase_list = self.getAllTestcase_list()
 
-    def __str__(self):
-        return self.Testcase_context
-
-    # def getAllTestcase_list(self):
-    #     if self.SourceTestcase_id == 0:
-    #         return None
-    #     else:
-    #         otherTestcaseFromSameSourceTestcase = [self.SourceTestcase_id]
-    #         for item in Table_Testcase().selectSourceTestcaseIdFromTableTestcase(self.SourceTestcase_id):
-    #             otherTestcaseFromSameSourceTestcase.append(item[0])
-    #         return otherTestcaseFromSameSourceTestcase
+    def getAllTestcase_list(self):
+        if self.SourceTestcase_id == 0:
+            return None
+        else:
+            otherTestcaseFromSameSourceTestcase = [self.SourceTestcase_id]
+            for item in Table_Testcase().selectSourceTestcaseIdFromTableTestcase(self.SourceTestcase_id):
+                otherTestcaseFromSameSourceTestcase.append(item[0])
+            return otherTestcaseFromSameSourceTestcase
 
     def engine_run_testcase(self, timeout="30"):
         # 1.记录自身覆盖率信息在Engine_coverage
@@ -50,7 +46,8 @@ class Testcase_Object(object):
         # 3.查看有无子用例，有的话整合自己和所有的子用例，记录下Engine_coverage_integration_all
         harness = Harness()
         # print(f'正在使用{len(harness.get_engines())}个引擎进行测试')
-        harness_result = harness.run_testcase(self.SourceFun_id, self.id, self.Testcase_context, timeout)
+        harness_result = harness.run_testcase(self.SourceFun_id, self.Id, self.Testcase_context,
+                                              timeout)
         # 增加一次fuzzing次数
 
         self.Fuzzing_times += 1
@@ -152,40 +149,40 @@ class Testcase_Object(object):
         random_block_remove_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(
             random_block_remove_pass,
             self.SourceFun_id,
-            self.id, 0, 4, 0, 0, None, None, None, 0, None)
+            self.Id, 0, 4, 0, 0, None, None, None, 0, None)
         while_if_swap_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(while_if_swap_pass,
                                                                                             self.SourceFun_id,
-                                                                                            self.id, 0, 5, 0, 0, None,
+                                                                                            self.Id, 0, 5, 0, 0, None,
                                                                                             None, None, 0, None)
         condition_code_add_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(
             condition_code_add_pass,
             self.SourceFun_id,
-            self.id, 0, 6, 0, 0, None, None, None, 0, None)
+            self.Id, 0, 6, 0, 0, None, None, None, 0, None)
         replaceOperator_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(replaceOperator_pass,
                                                                                               self.SourceFun_id,
-                                                                                              self.id, 0, 8, 0, 0, None,
+                                                                                              self.Id, 0, 8, 0, 0, None,
                                                                                               None, None, 0, None)
         replace_similar_API_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(
             replace_similar_API_pass,
             self.SourceFun_id,
-            self.id, 0, 8, 0, 0, None, None, None, 0, None)
+            self.Id, 0, 8, 0, 0, None, None, None, 0, None)
         replace_return_API_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(
             replace_return_API_pass,
             self.SourceFun_id,
-            self.id, 0, 9, 0, 0, None, None, None, 0, None)
+            self.Id, 0, 9, 0, 0, None, None, None, 0, None)
         proto_pollution_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(proto_pollution_pass,
                                                                                               self.SourceFun_id,
-                                                                                              self.id, 0, 10, 0, 0,
+                                                                                              self.Id, 0, 10, 0, 0,
                                                                                               None, None, None, 0,
                                                                                               None)
         property_modification_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(
             property_modification_pass,
             self.SourceFun_id,
-            self.id, 0, 11, 0, 0, None, None, None, 0, None)
+            self.Id, 0, 11, 0, 0, None, None, None, 0, None)
         hotspot_optimization_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(
             hotspot_optimization_pass,
             self.SourceFun_id,
-            self.id, 0, 12, 0, 0, None, None, None, 0, None)
+            self.Id, 0, 12, 0, 0, None, None, None, 0, None)
 
         table_testcase.insertManyDataToTableTestcase(random_block_remove_pass_list_to_write)
         table_testcase.insertManyDataToTableTestcase(while_if_swap_pass_list_to_write)
@@ -335,11 +332,11 @@ class Testcase_Object(object):
         all_functions_generated_testcases_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(
             all_functions_generated_testcases,
             self.SourceFun_id,
-            self.id, 0, 1, 0, 0, None, None, None, 0, None)
+            self.Id, 0, 1, 0, 0, None, None, None, 0, None)
         all_functions_replaced_generated_testcases_pass_list_to_write = self.make_all_mutation_testcases_passListToWrite(
             all_functions_replaced_generated_testcases,
             self.SourceFun_id,
-            self.id, 0, 2, 0, 0, None, None, None, 0, None)
+            self.Id, 0, 2, 0, 0, None, None, None, 0, None)
 
         table_testcase.insertManyDataToTableTestcase(all_functions_generated_testcases_pass_list_to_write)
         table_testcase.insertManyDataToTableTestcase(all_functions_replaced_generated_testcases_pass_list_to_write)
@@ -352,7 +349,7 @@ class Testcase_Object(object):
                                                                   self.Interesting_times,
                                                                   self.Engine_coverage,
                                                                   self.Engine_coverage_integration_source,
-                                                                  self.id)
+                                                                  self.Id)
 
     def updateSourceEngine_coverage_integration_all(self):
         table_Testcases = Table_Testcase()
@@ -476,14 +473,14 @@ class Testcase_Object(object):
         获取自身的覆盖率信息，记录在Engine_coverage
         @return:
         """
-        return self.processCov(self.id)
+        return self.processCov(self.Id)
 
     def getSourceCov(self):
         """
         如果存在父用例，获取自身和父用例的覆盖率，记录在记录在Engine_coverage_integration_source
         @return:
         """
-        return self.processCov(self.id, self.SourceTestcase_id)
+        return self.processCov(self.Id, self.SourceTestcase_id)
 
     def getAllCov(self, otherTestcaseFromSameSourceTestcase):
         """

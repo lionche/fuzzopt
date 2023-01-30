@@ -34,7 +34,6 @@ for root, dirs, files in os.walk(dir):
         args.append((Function_content, SourceFun_id, Mutation_method,Mutation_times, Remark))
 
 result = mysql.insertMany(sql,args)
-print(f"共导入{result}条方法")
 
 # 释放资源
 mysql.dispose()

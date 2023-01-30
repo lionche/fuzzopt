@@ -12,6 +12,7 @@ from typing import List
 
 from dbConnecttion.Table_Operation import Table_Testbed
 from utils import labdate
+# from workline.mysql_tools.Table_Operation import Table_Result, Table_Suspicious_Result
 
 Majority = collections.namedtuple('Majority', [
     'majority_outcome', 'outcome_majority_size',
@@ -53,7 +54,7 @@ class DifferentialTestResult:
     #     table_suspicious_Result.insertDataToTableSuspiciousResult(self.error_type, self.testcase_id, self.function_id,
     #                                                               self.testbed_id,
     #                                                               self.remark, self.Is_filtered)
-
+    #
 
 class HarnessResult:
     """
@@ -137,7 +138,7 @@ class HarnessResult:
                                                output.testbed_id,
                                                output.testbed_location))
         return bugs_info
-    #
+
     # def save_to_table_result(self):
     #     """
     #     Save the result to the database.
@@ -149,7 +150,7 @@ class HarnessResult:
     #     table_result = Table_Result()
     #     for output in self.outputs:
     #         table_result.insertDataToTableResult(self.testcase_id, output.testbed_id, output.returncode, output.stdout,
-    #                                              output.stderr, output.duration_ms, 0,None)
+    #                                              output.stderr, output.duration_ms, 0, None)
 
 
 class Output:
@@ -160,9 +161,12 @@ class Output:
                  stdout: str,
                  stderr: str,
                  duration_ms: int,
-                 event_start_epoch_ms: int):
+                 event_start_epoch_ms: int,
+                 testbed_name: str
+                 ):
         self.testbed_id = testbed_id
         self.testbed_location = testbed_location
+        self.testbed_name = testbed_name
         self.returncode = returncode
         self.stdout = stdout
         self.stderr = stderr
@@ -192,12 +196,14 @@ class Output:
                 "stdout": self.stdout,
                 "stderr": self.stderr,
                 "duration_ms": self.duration_ms,
-                "event_start_epoch_ms": self.event_start_epoch_ms
+                "event_start_epoch_ms": self.event_start_epoch_ms,
+                "testbed_name":self.testbed_name
                 }
 
     def __str__(self):
         return json.dumps({"testbed_id": self.testbed_id,
                            "testbed_location": self.testbed_location,
+                           "testbed_name": self.testbed_name,
                            "returncode": self.returncode,
                            "stdout": self.stdout,
                            "stderr": self.stderr,
@@ -207,10 +213,11 @@ class Output:
 
 
 class ThreadLock(Thread):
-    def __init__(self, testcase_id, testbed_location, testcase_path, testbed_id, timeout):
+    def __init__(self, testcase_id, testbed_location, testcase_path, testbed_id, timeout, testbed_name):
         super().__init__()
         self.testcase_id = testcase_id
         self.testbed_id = testbed_id
+        self.testbed_name = testbed_name
         self.output = None
         self.testbed_location = testbed_location
         self.testcase_path = testcase_path
@@ -222,19 +229,19 @@ class ThreadLock(Thread):
         try:
             self.output = self.run_test_case(self.testcase_id, self.testbed_location, self.testcase_path,
                                              self.testbed_id,
-                                             self.timeout)
+                                             self.timeout, self.testbed_name)
             # print(type(self.coverage))
 
         except BaseException as e:
             self.returnInfo = 1
 
     def run_test_case(self, testcase_id: int, testbed_location: str, testcase_path: pathlib.Path, testbed_id,
-                      timeout, ):
+                      timeout, testbed_name):
         uniTag = testcase_path.name.split('javascriptTestcase_')[1].split('.')[0]
         cmd = ["timeout", "-s9", timeout]
         # LLVM_PROFILE_FILE = f"{uniTag}.profraw"ls
         # 保存覆盖率文件的文件夹
-        LLVM_PROFILE_FILE = f"/root/fuzzopt/data/cov_files/profraws/{testcase_id}.profraw"
+        LLVM_PROFILE_FILE = f"/root/Comfort_all/data/cov_files/profraws/{testcase_id}.profraw"
         my_env = os.environ.copy()
         my_env['LLVM_PROFILE_FILE'] = LLVM_PROFILE_FILE
 
@@ -256,7 +263,7 @@ class ThreadLock(Thread):
         output = Output(testbed_id=testbed_id, testbed_location=testbed_location, returncode=pro.returncode,
                         stdout=stdout,
                         stderr=stderr,
-                        duration_ms=duration_ms, event_start_epoch_ms=event_start_epoch_ms)
+                        duration_ms=duration_ms, event_start_epoch_ms=event_start_epoch_ms, testbed_name=testbed_name)
         # coverage_stdout_finally: str = ''
         # if 'cov' in testbed_location:
         # cmd_coverage = f'llvm-profdata-10 merge -o {uniTag}.profdata {uniTag}.profraw && llvm-cov-10 export /root/.jsvu/engines/chakra-1.13-cov/ch -instr-profile={uniTag}.profdata && rm /root/Comfort_all/workline/{uniTag}.profdata /root/Comfort_all/workline/{uniTag}.profraw'
@@ -286,6 +293,20 @@ class Harness:
         self.engines = self.get_engines()
 
     def run_testcase(self, function_id: int, testcase_id: int, testcase_context: str,
+                     timeout: str) -> HarnessResult:
+        """
+        Execute test cases with multiple engines and return test results after execution of all engines.
+        :param timeout: timeout kill process
+        :param function_id: executed function Id
+        :param testcase_id:  executed Testcases Id
+        :param testcase_context: Testcases to be executed
+        :return: test results
+        """
+
+        result = self.multi_thread(function_id, testcase_id, testcase_context, timeout)
+        return result
+
+    def multi_thread(self, function_id: int, testcase_id: int, testcase_context: str,
                      timeout: str):
         """
         Multithreading test execution test cases
@@ -311,10 +332,12 @@ class Harness:
                     testbed_id = engine.get('id')
                     testbed_location = str(engine.get('Testbed_location'), 'utf-8')
 
+                    testbed_name = str(engine.get('Testbed_name'), 'utf-8')
                     tmp = ThreadLock(testcase_id=testcase_id, testbed_location=testbed_location,
                                      testcase_path=testcase_path,
                                      testbed_id=testbed_id,
-                                     timeout=timeout)
+                                     timeout=timeout,
+                                     testbed_name=testbed_name)
                     threads_pool.append(tmp)
                     tmp.start()
                 for thread in threads_pool:
