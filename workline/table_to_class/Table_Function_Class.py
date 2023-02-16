@@ -314,7 +314,7 @@ class Function_Object(object):
             lis.append(item)
         return lis
 
-    def jshint_check_testcases(self, all_testcases):
+    def jshint_check_function(self, all_functions):
         """
         使用jshint对生成的用例进行检查\n
         过滤掉语法错误的用例\n
@@ -326,9 +326,10 @@ class Function_Object(object):
         start_time = time.time()
         # print("正在对生成的用例使用jshint进行语法检查")
         all_testcases_pass = set()
-        for testcase in all_testcases:
+        for testcase in all_functions:
             # 通过with语句创建临时文件，with会自动关闭临时文件
             testcase_no_print = testcase[:testcase.rfind('\n')]
+            testcase_no_print = testcase_no_print[:testcase_no_print.rfind('\n')]
             # print(testcase_no_print)
 
             with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
@@ -361,12 +362,12 @@ class Function_Object(object):
         else:  # 假如是linux
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
-        # if stdout:
-        #     print("stdout")
-        #     print(stdout)
-        # if stderr:
-        #     print("error")
-        #     print(stderr)
+        if stdout:
+            print("stdout")
+            print(stdout)
+        if stderr:
+            print("error")
+            print(stderr)
         if stdout.__len__() > 0:
             jshint_flag = False
         else:  # 通过了检查，此时 test_file_name中就是美化后的代码
@@ -386,11 +387,12 @@ class Function_Object(object):
             # 连续组装times次
             for i in range(times):
                 function_assemle = callable_processor.get_self_calling(self.Function_content)
+                # print(function_assemle)
                 function_assemle_list.add(function_assemle)
             # 用jshint检查用例语法
-            all_testcases_pass = self.jshint_check_testcases(function_assemle_list)
-            #
-            testcases_list_to_write = self.makeTestcasesListToWrite(all_testcases=all_testcases_pass,
+            # all_testcases_pass = self.jshint_check_testcases(function_assemle_list)
+            # #
+            testcases_list_to_write = self.makeTestcasesListToWrite(all_testcases=function_assemle_list,
                                                                     SourceFun_id=self.Id)
             # #
             table_Testcase = Table_Testcase()

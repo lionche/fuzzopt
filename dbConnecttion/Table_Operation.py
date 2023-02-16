@@ -149,7 +149,7 @@ class Table_Testcase(object):
         """
         # 注意在数据库操作时无 %d ,全部字段都用%s来匹配，无论哪种数据类型。
         sql = f'select * from Table_Testcase where Id={id}'
-        res = self.__table.getAll(sql)
+        res = self.__table.getOne(sql)
         self.__table.dispose()
         return res
 

@@ -171,8 +171,11 @@ class CallableProcessor:
         return result
 
     def get_output_statement(self, func_name_and_self_calling):
-        output_statement = 'var FUZZOPTCallingResult = ' + func_name_and_self_calling + ';\n'
-        output_statement += 'print(FUZZOPTCallingResult);'
+        output_statement = 'var FuzzoptNoJITResult = ' + func_name_and_self_calling + ';\n'
+        output_statement += f"for (let i = 0 ; i < 10 ; i++) {{{func_name_and_self_calling}}}\n"
+        output_statement += 'var FuzzoptJITResult = ' + func_name_and_self_calling + ';\n'
+        output_statement += 'print(FuzzoptNoJITResult);\n'
+        output_statement += 'print(FuzzoptJITResult);'
         return output_statement
 
     def get_random_self_calling(self):

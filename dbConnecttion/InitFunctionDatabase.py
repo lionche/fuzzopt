@@ -1,11 +1,11 @@
 import os
 
 from MySqlConn import MyPymysqlPool
+from dbConnecttion.Table_Operation import Table_Function
 
 mysql = MyPymysqlPool()
 
 
-sql = 'insert into Table_Function (Function_content, SourceFun_id,Mutation_method,Mutation_times,Remark) VALUES (%s,%s,%s,%s,%s);'
 
 
 args = []
@@ -33,7 +33,7 @@ for root, dirs, files in os.walk(dir):
         Remark = None
         args.append((Function_content, SourceFun_id, Mutation_method,Mutation_times, Remark))
 
-result = mysql.insertMany(sql,args)
+Table_Function().insertManyDataToTableFunction(args)
 
 # 释放资源
 mysql.dispose()

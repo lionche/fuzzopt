@@ -3,6 +3,7 @@
 # from pathlib import Path
 # BASE_DIR = str(Path(__file__).resolve().parent.parent.parent)
 # sys.path.append(BASE_DIR)
+import os
 import subprocess
 import sys
 import tempfile
@@ -112,6 +113,23 @@ class Testcase_Object(object):
             jshint_flag = True
             # print(f"right!")
         return jshint_flag
+
+    def mutation_jit(self):
+        os.environ['NODE_PATH'] = "/usr/lib/node_modules/"
+        with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
+            temp_file_path = tmpfile.name
+            # print(temp_file_name)  # /tmp/tmp73zl8gmn
+            tmpfile.write(self.Testcase_context.encode())
+            tmpfile.seek(0)
+            cmd1 = ['node', '/root/fuzzopt/workline/mutator_testcase_tools/mutation.js', '-f', temp_file_path]
+            pro1 = subprocess.Popen(cmd1, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE, universal_newlines=True)
+            stdout1, stderr1 = pro1.communicate()
+            print(stdout1)
+            print(stderr1)
+
+
+
 
     def mutation_method4(self):
         """
