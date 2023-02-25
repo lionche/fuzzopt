@@ -12,6 +12,7 @@ from typing import List
 
 from dbConnecttion.Table_Operation import Table_Testbed
 from utils import labdate
+
 # from workline.mysql_tools.Table_Operation import Table_Result, Table_Suspicious_Result
 
 Majority = collections.namedtuple('Majority', [
@@ -21,11 +22,13 @@ Majority = collections.namedtuple('Majority', [
 
 
 class DifferentialTestResult:
-    def __init__(self, function_id: int, testcase_id: int, error_type: str, testbed_id: int, testbed_location: str):
+    def __init__(self, function_id: int, testcase_id: int, error_type: str, testbed_id: int, testbed_location: str,
+                 testbed_name: str):
         self.function_id = function_id
         self.testcase_id = testcase_id
         self.error_type = error_type
         self.testbed_id = testbed_id
+        self.testbed_name = testbed_name
         self.testbed_location = testbed_location
         self.classify_result = None
         self.classify_id = None
@@ -36,10 +39,7 @@ class DifferentialTestResult:
         return {"Differential Test Result": {"testcase_id": self.testcase_id,
                                              "error_type": self.error_type,
                                              "testbed_id": self.testbed_id,
-                                             # "function_id": self.function_id,
-                                             # "inconsistent_testbed": self.testbed_location,
-                                             # "classify_result": self.classify_result,
-                                             # "classify_id": self.classify_id
+                                             "testbed_name": self.testbed_name
                                              }}
 
     def __str__(self):
@@ -55,6 +55,7 @@ class DifferentialTestResult:
     #                                                               self.testbed_id,
     #                                                               self.remark, self.Is_filtered)
     #
+
 
 class HarnessResult:
     """
@@ -106,7 +107,7 @@ class HarnessResult:
                 # print(f"{output.testbed_id}crash")
                 bugs_info.append(
                     DifferentialTestResult(self.function_id, self.testcase_id, "crash", output.testbed_id,
-                                           output.testbed_location))
+                                           output.testbed_location, output.testbed_name))
                 # pass
             elif majority.majority_outcome != output.output_class and majority.outcome_majority_size >= math.ceil(
                     ratio * testbed_num):
@@ -114,7 +115,7 @@ class HarnessResult:
                     bugs_info.append(
                         DifferentialTestResult(self.function_id, self.testcase_id, "Most JS engines pass",
                                                output.testbed_id,
-                                               output.testbed_location))
+                                               output.testbed_location, output.testbed_name))
                 elif majority.majority_outcome == "timeout":
                     # Usually, this is not a bug
                     pass
@@ -122,13 +123,13 @@ class HarnessResult:
                     bugs_info.append(
                         DifferentialTestResult(self.function_id, self.testcase_id, "Most JS engines crash",
                                                output.testbed_id,
-                                               output.testbed_location))
+                                               output.testbed_location, output.testbed_name))
                 elif majority.majority_outcome == "script_error":
                     bugs_info.append(
                         DifferentialTestResult(self.function_id, self.testcase_id,
                                                "Majority JS engines throw runtime error/exception",
                                                output.testbed_id,
-                                               output.testbed_location))
+                                               output.testbed_location, output.testbed_name))
             elif output.output_class == "pass" and majority.majority_outcome == output.output_class and \
                     output.stdout != majority.majority_stdout and \
                     majority.stdout_majority_size >= math.ceil(ratio * majority.outcome_majority_size):
@@ -136,7 +137,7 @@ class HarnessResult:
                     bugs_info.append(
                         DifferentialTestResult(self.function_id, self.testcase_id, "Pass value *** run error",
                                                output.testbed_id,
-                                               output.testbed_location))
+                                               output.testbed_location, output.testbed_name))
         return bugs_info
 
     # def save_to_table_result(self):
@@ -197,7 +198,7 @@ class Output:
                 "stderr": self.stderr,
                 "duration_ms": self.duration_ms,
                 "event_start_epoch_ms": self.event_start_epoch_ms,
-                "testbed_name":self.testbed_name
+                "testbed_name": self.testbed_name
                 }
 
     def __str__(self):

@@ -58,16 +58,20 @@ def herness_ajax(request):
 
     # testcase[1] = herness_ajax
 
-    print(testcase)
+    # print(testcase)
 
     harness_result, different_result_list = harness_testcase(testcase)
-
+    print(harness_result)
+    print("-----------")
+    print(different_result_list)
+    for i in different_result_list:
+        print(i)
     def obj_different_result_2_json(obj):
         return {
             'testcase_id': obj.testcase_id,
             "error_type": obj.error_type,
             "testbed_id": obj.testbed_id,
-            "testbed_name": obj.testbed_name,
+            "testbed_name": obj.testbed_name
         }
 
     different_result_list = json.dumps(different_result_list, default=obj_different_result_2_json)
