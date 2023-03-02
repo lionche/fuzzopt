@@ -1,3 +1,6 @@
 .idea
 *.iml
 target
+data/JStestcases
+*.DS_Store
+.DS_Store

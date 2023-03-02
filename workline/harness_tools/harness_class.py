@@ -214,27 +214,72 @@ class Output:
 
 
 class ThreadLock(Thread):
-    def __init__(self, testcase_id, testbed_location, testcase_path, testbed_id, timeout, testbed_name):
+    def __init__(self, testcase_id, testbed_location, testcase_context, testbed_id, timeout, testbed_name):
         super().__init__()
         self.testcase_id = testcase_id
         self.testbed_id = testbed_id
         self.testbed_name = testbed_name
         self.output = None
         self.testbed_location = testbed_location
-        self.testcase_path = testcase_path
+        self.testcase_context = testcase_context
         self.returnInfo = None
         self.timeout = timeout
         self.coverage: str = ''
 
     def run(self):
-        try:
-            self.output = self.run_test_case(self.testcase_id, self.testbed_location, self.testcase_path,
+        with tempfile.NamedTemporaryFile(prefix="javascriptTestcase_", suffix=".js", delete=True) as f:
+            testcase_path = pathlib.Path(f.name)
+            # 此处手动转换为bytes类型再存储是为了防止代码中有乱码而无法存储的情况
+
+            parameter_count = self.testcase_context.count('OPTParameter')
+
+            jit_testcase = self.get_jit_testcase(self.testcase_context, parameter_count, self.testbed_name)
+            # print(jit_testcase)
+            testcase_path.write_bytes(bytes(jit_testcase, encoding="utf-8"))
+
+            # print(self.testcase_context)
+
+            coverage = ''
+            # uniTag = testcase_path.name.split('_')[1].split('.')[0]
+
+            self.output = self.run_test_case(self.testcase_id, self.testbed_location, testcase_path,
                                              self.testbed_id,
                                              self.timeout, self.testbed_name)
             # print(type(self.coverage))
 
-        except BaseException as e:
-            self.returnInfo = 1
+        # except BaseException as e:
+        #     self.returnInfo = 1
+
+    def get_jit_testcase(self, function_body_fix_return, parameter_count, engine_name):
+        function_body_fix_return = function_body_fix_return+'\n'
+        function_name = 'fuzzopt'
+        self_calling = '('
+        for i in range(parameter_count):
+            self_calling += f'OPTParameter{i}'+','
+        self_calling = self_calling[:-1] + ')'
+        # print(self_calling)
+        res = ""
+        Suffix = 'var FuzzoptJITResult = ' + function_name + self_calling + ';\nprint(FuzzoptJITResult);'
+
+        if "8" in engine_name:
+            # v8 %OptimizeFunctionOnNextCall(foo);
+            res += function_body_fix_return + f"%OptimizeFunctionOnNextCall({function_name});\n"
+            res += Suffix
+        elif "jsc" in engine_name:
+            res += function_body_fix_return + f"for (let i = 0 ; i < 30 ; i++) {{{function_name + self_calling}}}\n"
+            res += f"for (let i = 0 ; i < 75 ; i++) {{{function_name + self_calling}}}\n"
+            res += f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
+            res += Suffix
+
+        elif "chakra" in engine_name:
+            res += function_body_fix_return + f"for (let i = 0 ; i < 30 ; i++) {{{function_name + self_calling}}}\n"
+            res += f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
+            res += Suffix
+        elif "spiderMonkey" in engine_name:
+            res += function_body_fix_return + f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
+            res += f"for (let i = 0 ; i < 300 ; i++) {{{function_name + self_calling}}}\n"
+            res += Suffix
+        return res
 
     def run_test_case(self, testcase_id: int, testbed_location: str, testcase_path: pathlib.Path, testbed_id,
                       timeout, testbed_name):
@@ -317,52 +362,43 @@ class Harness:
         """
 
         result = HarnessResult(function_id=function_id, testcase_id=testcase_id, testcase_context=testcase_context)
-        with tempfile.NamedTemporaryFile(prefix="javascriptTestcase_", suffix=".js", delete=True) as f:
-            testcase_path = pathlib.Path(f.name)
+        outputs = []
+        threads_pool = []
 
-            try:
-                # 此处手动转换为bytes类型再存储是为了防止代码中有乱码而无法存储的情况
-                testcase_path.write_bytes(bytes(testcase_context, encoding="utf-8"))
+        # print(uniTag)
+        for engine in self.engines:
+            testbed_id = engine.get('id')
+            testbed_location = str(engine.get('Testbed_location'), 'utf-8')
 
-                outputs = []
-                threads_pool = []
-                coverage = ''
-                uniTag = testcase_path.name.split('_')[1].split('.')[0]
-                # print(uniTag)
-                for engine in self.engines:
-                    testbed_id = engine.get('id')
-                    testbed_location = str(engine.get('Testbed_location'), 'utf-8')
+            testbed_name = str(engine.get('Testbed_name'), 'utf-8')
+            tmp = ThreadLock(testcase_id=testcase_id, testbed_location=testbed_location,
+                             testcase_context=testcase_context,
+                             testbed_id=testbed_id,
+                             timeout=timeout,
+                             testbed_name=testbed_name)
+            threads_pool.append(tmp)
+            tmp.start()
 
-                    testbed_name = str(engine.get('Testbed_name'), 'utf-8')
-                    tmp = ThreadLock(testcase_id=testcase_id, testbed_location=testbed_location,
-                                     testcase_path=testcase_path,
-                                     testbed_id=testbed_id,
-                                     timeout=timeout,
-                                     testbed_name=testbed_name)
-                    threads_pool.append(tmp)
-                    tmp.start()
-                for thread in threads_pool:
-                    thread.join()
-                    if thread.returnInfo:
-                        gc.collect()
-                    elif thread.output is not None:
-                        outputs.append(thread.output)
-                    # print(type(thread.coverage))
-                    # print(thread.coverage)
+        for thread in threads_pool:
+            thread.join()
+            if thread.returnInfo:
+                gc.collect()
+            elif thread.output is not None:
+                outputs.append(thread.output)
+            # print(type(thread.coverage))
+            # print(thread.coverage)
 
-                    # if thread.coverage:
-                    # print(type(thread.coverage))
-                    # coverage.append((thread.coverage))
-                    # coverage = thread.coverage
-                    # print(type(coverage))
-                # print(type(coverage[0]))
+            # if thread.coverage:
+            # print(type(thread.coverage))
+            # coverage.append((thread.coverage))
+            # coverage = thread.coverage
+            # print(type(coverage))
+        # print(type(coverage[0]))
 
-                # print(coverage)
+        # print(coverage)
 
-                # return outputs, coverage
+        # return outputs, coverage
 
-                result.outputs = outputs
-            except Exception as e:
-                logging.exception("\nWrite to file failure: ", e)
-                # return result
+        result.outputs = outputs
+
         return result

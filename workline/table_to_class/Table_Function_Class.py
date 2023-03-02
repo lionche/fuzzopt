@@ -386,12 +386,10 @@ class Function_Object(object):
 
             # 连续组装times次
             for i in range(times):
-                function_assemle = callable_processor.get_self_calling(self.Function_content)
-                # print(function_assemle)
+                function_assemle = callable_processor.generate_self_calling(self.Function_content)
+
                 function_assemle_list.add(function_assemle)
-            # 用jshint检查用例语法
-            # all_testcases_pass = self.jshint_check_testcases(function_assemle_list)
-            # #
+
             testcases_list_to_write = self.makeTestcasesListToWrite(all_testcases=function_assemle_list,
                                                                     SourceFun_id=self.Id)
             # #
@@ -399,7 +397,6 @@ class Function_Object(object):
             # #
             table_Testcase.insertManyDataToTableTestcase(testcases_list_to_write)
 
-            # print(function_assemle)
             return testcases_list_to_write
         except:
             pass

@@ -119,23 +119,21 @@ class CallableProcessor:
             return 0
         return params.split(',').__len__()
 
-    def generate_self_calling(self, function_body: str, no_function=True):
+    def generate_self_calling(self, function_body: str):
+
         if not function_body.endswith(';'):
             function_body += ';'
-
+        function_body = function_body.replace('function(', 'function fuzzopt(')
         param_function_name = 'OPTParameter'
         param_function_count = 0
         if self.functions.__contains__(self.generate_function):
             self.functions.remove(self.generate_function)
-        if not no_function:
-            self.functions.append(self.generate_function)
 
         function_name = self.extract_function_name(function_body)
+
         num_of_param = self.extract_num_of_params(function_body)
         param_type = self.type_inferer.execute(function_body)
-        # param_type = []
-        # for i in range(0, num_of_param):
-        #     param_type.append(['none'])
+
         self_calling = '('
         if num_of_param > 0:
             param = self.generate_a_param(param_type[0][0])
@@ -154,37 +152,54 @@ class CallableProcessor:
             num_of_param -= 1
         self_calling += ')'
 
-        # if function_name.__eq__(''):
-        #     function_body = 'var ' + self.function_name + ' = ' + function_body
-        #     result = function_body + '\n\n' + self.function_name + self_calling + ';'
-        #     return result
-        # else:
-        #     result = function_body + '\n\n' + function_name + self_calling + ';'
-        #     return result
-        if function_name.__eq__(''):
-            function_body = 'var ' + self.function_name + ' = ' + function_body
-            result = function_body + '\n' + self.get_output_statement(self.function_name + self_calling)
-        else:
-            result = function_body + '\n' + self.get_output_statement(function_name + self_calling)
-        if not result.endswith(";"):
-            result += ';'
-        return result
+        import execjs
+        with open('/root/fuzzopt/workline/node/fixReturn.js', 'r', encoding='utf-8') as f:
+            jstext = f.read()
+        ctx = execjs.compile(jstext)
 
-    def get_output_statement(self, func_name_and_self_calling):
-        output_statement = 'var FuzzoptNoJITResult = ' + func_name_and_self_calling + ';\n'
-        output_statement += f"for (let i = 0 ; i < 10 ; i++) {{{func_name_and_self_calling}}}\n"
-        output_statement += 'var FuzzoptJITResult = ' + func_name_and_self_calling + ';\n'
-        output_statement += 'print(FuzzoptNoJITResult);\n'
-        output_statement += 'print(FuzzoptJITResult);'
-        return output_statement
+        function_body_fix_return = ctx.call('fixReturn', function_body)
 
-    def get_random_self_calling(self):
-        choice = random.randint(0, self.callables.__len__() - 1)
-        function_body = self.callables[choice].__getitem__(0).decode()
-        return self.generate_self_calling(function_body)
+        # jit_testcese_dict = self.get_output_statement(function_body_fix_return, function_name, self_calling)
 
-    def get_self_calling(self, function_body, no_function=True):
-        return self.generate_self_calling(function_body, no_function=no_function)
+        return function_body_fix_return
+
+    def get_output_statement(self, function_body_fix_return, function_name, self_calling):
+        dic = {}
+        Suffix = 'var FuzzoptJITResult = ' + function_name + self_calling + ';\nprint(FuzzoptJITResult);'
+
+        # v8 %OptimizeFunctionOnNextCall(foo);
+
+        v8 = function_body_fix_return + f"%OptimizeFunctionOnNextCall({function_name});\n"
+        v8 += Suffix
+        dic['v8'] = v8
+        # jsc
+        jsc = function_body_fix_return + f"for (let i = 0 ; i < 30 ; i++) {{{function_name + self_calling}}}\n"
+        jsc += f"for (let i = 0 ; i < 75 ; i++) {{{function_name + self_calling}}}\n"
+        jsc += f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
+        jsc += Suffix
+        dic['jsc'] = jsc
+
+        # chakra
+        chakra = function_body_fix_return + f"for (let i = 0 ; i < 30 ; i++) {{{function_name + self_calling}}}\n"
+        chakra += f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
+        chakra += Suffix
+        dic['chakra'] = chakra
+
+        # spm
+        spm = function_body_fix_return + f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
+        spm += f"for (let i = 0 ; i < 300 ; i++) {{{function_name + self_calling}}}\n"
+        spm += Suffix
+        dic['spm'] = spm
+
+        return dic
+
+    # def get_random_self_calling(self):
+    #     choice = random.randint(0, self.callables.__len__() - 1)
+    #     function_body = self.callables[choice].__getitem__(0).decode()
+    #     return self.generate_self_calling(function_body)
+
+    # def get_self_calling(self, function_body):
+    #     return self.generate_self_calling(function_body)
 
 
 class TypeInferer:

@@ -47,8 +47,10 @@ class Testcase_Object(object):
         # 3.查看有无子用例，有的话整合自己和所有的子用例，记录下Engine_coverage_integration_all
         harness = Harness()
         # print(f'正在使用{len(harness.get_engines())}个引擎进行测试')
+
         harness_result = harness.run_testcase(self.SourceFun_id, self.Id, self.Testcase_context,
                                               timeout)
+
         # 增加一次fuzzing次数
 
         self.Fuzzing_times += 1
