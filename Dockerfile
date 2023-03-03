@@ -1,7 +1,8 @@
 #下载基础镜像
 # FROM nvidia/cuda:11.4.2-cudnn8-runtime-ubuntu20.04
 # FROM nvidia/cuda:11.8.0-devel-ubuntu20.04
-FROM ubuntu:20.04
+#FROM ubuntu:20.04
+FROM swift:latest
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y python3 python3-pip git openssh-server curl locales clang vim proxychains&& rm -rf /var/lib/apt/lists/*
