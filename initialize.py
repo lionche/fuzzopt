@@ -8,9 +8,9 @@ class Django_work(object):
     def runShell(command):
         print(os.popen(command).read())
 
-
     def makemigrationsAndMigrate(self):
-        self.runShell('python /root/fuzzopt/web/manage.py makemigrations && python /root/fuzzopt/web/manage.py migrate && python /root/fuzzopt/dbConnecttion/InitEngineDatabase.py && python /root/fuzzopt/dbConnecttion/InitFunctionDatabase.py')
+        self.runShell(
+            'python /root/fuzzopt/web/manage.py makemigrations && python /root/fuzzopt/web/manage.py migrate && python /root/fuzzopt/dbConnecttion/InitEngineDatabase.py && python /root/fuzzopt/dbConnecttion/InitFunctionDatabase.py')
 
     def runserver(self):
         self.runShell('nohup python /root/fuzzopt/web/manage.py runserver 0.0.0.0:18887 &')

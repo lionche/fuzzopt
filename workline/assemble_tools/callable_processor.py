@@ -151,7 +151,6 @@ class CallableProcessor:
             index += 1
             num_of_param -= 1
         self_calling += ')'
-
         import execjs
         with open('/root/fuzzopt/workline/node/fixReturn.js', 'r', encoding='utf-8') as f:
             jstext = f.read()

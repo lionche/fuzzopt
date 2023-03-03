@@ -256,8 +256,8 @@ class ThreadLock(Thread):
         self_calling = '('
         for i in range(parameter_count):
             self_calling += f'OPTParameter{i}'+','
-        self_calling = self_calling[:-1] + ')'
-        # print(self_calling)
+        self_calling = self_calling + ')'
+
         res = ""
         Suffix = 'var FuzzoptJITResult = ' + function_name + self_calling + ';\nprint(FuzzoptJITResult);'
 

@@ -12,7 +12,7 @@ RUN pip install pyyaml pymysql django django-tables2 tzdata DBUtils -i https://p
 # # RUN pip install torch accelerate protobuf datasets "chardet<3.1.0" "urllib3<=1.25" "sentencepiece<0.1.92" sklearn transformers -i https://pypi.tuna.tsinghua.edu.cn/simple
 # RUN pip install torch accelerate protobuf datasets "chardet<3.1.0" "urllib3==1.25" sentencepiece scikit-learn transformers -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-run sed -ie 's/# zh_cn.uTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
+RUN sed -ie 's/# zh_cn.uTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
 RUN locale-gen
 ENV LANG zh_CN.UTF-8
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -21,8 +21,8 @@ ENV HOME /root
 
 # # 安装node
 RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && apt-get install -y nodejs
-
-RUN npm install nyc jsvu jshint estraverse esprima escodegen commander -g --registry=http://registry.npmmirror.com
+RUN npm npm install nyc jsvu jshint commander -g --registry=http://registry.npmmirror.com
+RUN npm install --save-dev @babel/core -g --registry=http://registry.npmmirror.com
 ENV NODE_PATH /usr/lib/node_modules/
 ENV FUZZOPT /root/fuzzopt
 
@@ -34,7 +34,7 @@ WORKDIR $FUZZOPT
 #开启ssh服务
 RUN mkdir /var/run/sshd
 RUN echo 'root:123123' | chpasswd
-RUN echo "Port 22" >> /etc/ssh/sshd_config
+RUN echo "Port 18889" >> /etc/ssh/sshd_config
 RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN echo "service ssh restart" >> ~/.bashrc
@@ -49,4 +49,7 @@ RUN tar -zxvf $FUZZOPT/data/JStestcases.tar.gz -C $FUZZOPT/data/
 RUN rm -rf $FUZZOPT/data/JStestcases.tar.gz
 # ENV http_proxy ""
 # ENV https_proxy ""
-
+RUN pip install PyExecJS tqdm -i https://pypi.tuna.tsinghua.edu.cn/simple
+ADD engine /root/engine
+#RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb && dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && rm libicu66_66.1-2ubuntu2_amd64.deb
+#RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu60_60.2-3ubuntu3.2_amd64.deb && dpkg -i libicu60_60.2-3ubuntu3.2_amd64.deb && rm libicu60_60.2-3ubuntu3.2_amd64.deb

@@ -387,7 +387,6 @@ class Function_Object(object):
             # 连续组装times次
             for i in range(times):
                 function_assemle = callable_processor.generate_self_calling(self.Function_content)
-
                 function_assemle_list.add(function_assemle)
 
             testcases_list_to_write = self.makeTestcasesListToWrite(all_testcases=function_assemle_list,

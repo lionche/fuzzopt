@@ -25,23 +25,24 @@ table_Testcases = Table_Testcase()
 
 # list_unharness = table_Testcases.selectIdFromTableTestcase(1)
 list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
-pbar = tqdm(total=len(list_unharness))
+# pbar = tqdm(total=len(list_unharness))
 
 print("一共有%d条未差分的测试用例" % len(list_unharness))
 
-for testcase in list_unharness:
+
+def muti_harness(testcase):
     testcase_object = Testcase_Object(testcase)
 
-    print('*' * 25 + f'差分用例{testcase_object.Id}' + '*' * 25)
-    pbar.update(1)
+    # print('*' * 25 + f'差分用例{testcase_object.Id}' + '*' * 25)
+    # pbar.update(1)
     # start_time = time.time()
     # # 获得差分结果，各个引擎输出
     try:
         harness_result = testcase_object.engine_run_testcase()
         different_result_list = harness_result.differential_test()
         if len(different_result_list):
-            # print(testcase_object.Id)
-            # print(testcase_object.Testcase_context)
+            print(testcase_object.Id)
+            print(testcase_object.Testcase_context)
             print(different_result_list)
     except:
         print(f"-----{testcase_object.Id}-----")
@@ -117,5 +118,9 @@ for testcase in list_unharness:
         # print(f'共耗时{int(time.time() - start_time)}秒')
         # 更新testcases表中的fuzzing次数和interesting次数,覆盖率信息
         testcase_object.updateFuzzingTimesInterestintTimesCovInfo()
+pool = ThreadPool()
+results = pool.map(muti_harness, list_unharness)
+pool.close()
+pool.join()
 
-pbar.close()
+# pbar.close()

@@ -1,21 +1,26 @@
+import sys
+from pathlib import Path
+
+BASE_DIR = str(Path(__file__).resolve().parent.parent)
+sys.path.append(BASE_DIR)
+print(BASE_DIR)
 from MySqlConn import MyPymysqlPool
 
 mysql = MyPymysqlPool()
 
-
 sql = 'insert into Table_Testbed (Testbed_name, Testbed_version,Testbed_location,Remark) VALUES (%s,%s,%s,%s);'
 
-args = [('v8', '9.9.1','/root/.jsvu/v8',None),
-        ('spiderMonkey', 'JavaScript-C96.0', '/root/.jsvu/spidermonkey', None),
-        ('chakra', 'ch version 1.11.24.0', '/root/.jsvu/ch', None),
-        ('jsc', 'v286936', '/root/.jsvu/javascriptcore', None),
-        ('chakra', 'ch version 1.13.0.0-beta', '/root/.jsvu/engines/chakra-1.13-cov/ch', None)]
-#
-# ('quickjs', 'v2021-03-27', '/root/.jsvu/quickjs', None),
-# ('jerryscript', 'Version: 3.0.0 (fea10bb7)', '/root/.jsvu/jerry', None),
-# ('graaljs', '21.3.0', '/root/.jsvu/graaljs', None),
-# ('hermes', '0.10.0', '/root/.jsvu/hermes', None),
-result = mysql.insertMany(sql,args)
+args = [('d8', '11.3.70', '/root/engine/v8-debug/v8-debug --allow-natives-syntax', None),
+        ('spiderMonkey', 'JavaScript-C112.0a1',
+         '/root/engine/spm  --baseline-warmup-threshold=10 --ion-warmup-threshold=100 --ion-check-range-analysis --ion-extra-checks --fuzzing-safe',
+         None),
+        ('chakra', 'ch version 1.13.0.0-beta',
+         '/root/engine/ch --maxinterpretcount:20 --maxsimplejitruncount:100 --bgjit --oopjit', None),
+        ('jsc', 'WebKit-7616.1.4',
+         '/root/engine/jsc --validateOptions=true --thresholdForJITSoon=20 --thresholdForJITAfterWarmUp=20 --thresholdForOptimizeAfterWarmUp=50 --thresholdForOptimizeAfterLongWarmUp=50 --thresholdForOptimizeSoon=50 --thresholdForFTLOptimizeAfterWarmUp=100 --thresholdForFTLOptimizeSoon=100 --validateBCE=true',
+         None)]
+
+result = mysql.insertMany(sql, args)
 # print(result)
 
 # 释放资源
