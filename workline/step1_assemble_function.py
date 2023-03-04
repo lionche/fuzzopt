@@ -10,7 +10,7 @@ from dbConnecttion.Table_Operation import Table_Function
 from workline.table_to_class.Table_Function_Class import Function_Object
 from tqdm import tqdm
 
-# Function_content = Table_Function().selectOneFromTableFunction(1)
+# Function_content_list = Table_Function().selectIdFromTableFunction(16)
 Function_content_list = Table_Function().getAllFromTableFunction()
 pbar = tqdm(total=len(Function_content_list))
 
@@ -24,7 +24,8 @@ pbar = tqdm(total=len(Function_content_list))
 
 def muti_assemble(Function_content):
     function_Object = Function_Object(Function_content)
-    function_Object.assemble_to_testcase(1)
+    assemble_to_testcase = function_Object.assemble_to_testcase(1)
+    # print(assemble_to_testcase[0][0])
     pbar.update(1)
 
 

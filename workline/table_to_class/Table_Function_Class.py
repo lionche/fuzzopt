@@ -395,7 +395,6 @@ class Function_Object(object):
             table_Testcase = Table_Testcase()
             # #
             table_Testcase.insertManyDataToTableTestcase(testcases_list_to_write)
-
             return testcases_list_to_write
         except:
             pass

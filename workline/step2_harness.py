@@ -27,22 +27,25 @@ table_Testcases = Table_Testcase()
 list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
 pbar = tqdm(total=len(list_unharness))
 
-print("一共有%d条未差分的测试用例" % len(list_unharness))
+# print("一共有%d条未差分的测试用例" % len(list_unharness))
 
 for testcase in list_unharness:
     testcase_object = Testcase_Object(testcase)
 
-    print('*' * 25 + f'差分用例{testcase_object.Id}' + '*' * 25)
-    pbar.update(1)
+    # print('*' * 25 + f'差分用例{testcase_object.Id}' + '*' * 25)
+    # pbar.update(1)
     # start_time = time.time()
     # # 获得差分结果，各个引擎输出
     try:
         harness_result = testcase_object.engine_run_testcase()
         different_result_list = harness_result.differential_test()
         if len(different_result_list):
+            # print(harness_result)
             # print(testcase_object.Id)
             # print(testcase_object.Testcase_context)
-            print(different_result_list)
+            # print(different_result_list)
+            for interesting_test_result in different_result_list:
+                print(interesting_test_result)
     except:
         print(f"-----{testcase_object.Id}-----")
 

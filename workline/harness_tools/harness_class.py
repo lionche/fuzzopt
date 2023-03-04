@@ -285,11 +285,11 @@ class ThreadLock(Thread):
                       timeout, testbed_name):
         uniTag = testcase_path.name.split('javascriptTestcase_')[1].split('.')[0]
         cmd = ["timeout", "-s9", timeout]
-        # LLVM_PROFILE_FILE = f"{uniTag}.profraw"ls
         # 保存覆盖率文件的文件夹
-        LLVM_PROFILE_FILE = f"/root/Comfort_all/data/cov_files/profraws/{testcase_id}.profraw"
+        LLVM_PROFILE_FILE = f"/root/fuzzopt/data/cov_files/profraws/{testcase_id}.profraw"
         my_env = os.environ.copy()
-        my_env['LLVM_PROFILE_FILE'] = LLVM_PROFILE_FILE
+        # my_env['LLVM_PROFILE_FILE'] = LLVM_PROFILE_FILE
+        my_env['LLVM_PROFILE_FILE'] = "/root/fuzzopt/data/cov_files/profraws/defalut.profraw"
 
         for ob in testbed_location.split():
             cmd.append(ob)

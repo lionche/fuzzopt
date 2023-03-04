@@ -16,6 +16,14 @@ class Table_Function(object):
         self.__table.dispose()
         return res
 
+    def selectIdFromTableFunction(self, id):
+        # 注意在数据库操作时无 %d ,全部字段都用%s来匹配，无论哪种数据类型。
+        sql = 'select * from Table_Function where id=%s'
+        prames = (id)
+        res = self.__table.getAll(sql, prames)
+        self.__table.dispose()
+        return res
+
     def selectSourceIdFromTableFunction(self, SourceFun_id):
         """
         条件查询全部符合的数据\n
