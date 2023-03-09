@@ -151,16 +151,19 @@ class CallableProcessor:
             index += 1
             num_of_param -= 1
         self_calling += ')'
-        import execjs
-        with open('/root/fuzzopt/workline/node/fixReturn.js', 'r', encoding='utf-8') as f:
-            jstext = f.read()
-        ctx = execjs.compile(jstext)
+        # print(function_body)
+        try:
+            import execjs
+            with open('/root/fuzzopt/workline/node/fixReturn.js', 'r', encoding='utf-8') as f:
+                jstext = f.read()
+            ctx = execjs.compile(jstext)
 
-        function_body_fix_return = ctx.call('fixReturn', function_body)
+            function_body = ctx.call('fixReturn', function_body)
+        except:
+            pass
 
         # jit_testcese_dict = self.get_output_statement(function_body_fix_return, function_name, self_calling)
-
-        return function_body_fix_return
+        return function_body
 
     def get_output_statement(self, function_body_fix_return, function_name, self_calling):
         dic = {}

@@ -231,7 +231,7 @@ class ThreadLock(Thread):
             testcase_path = pathlib.Path(f.name)
             # 此处手动转换为bytes类型再存储是为了防止代码中有乱码而无法存储的情况
 
-            parameter_count = self.testcase_context.count('OPTParameter')
+            parameter_count = self.testcase_context.count('var OPTParameter')
 
             jit_testcase = self.get_jit_testcase(self.testcase_context, parameter_count, self.testbed_name)
             # print(jit_testcase)
@@ -251,11 +251,11 @@ class ThreadLock(Thread):
         #     self.returnInfo = 1
 
     def get_jit_testcase(self, function_body_fix_return, parameter_count, engine_name):
-        function_body_fix_return = function_body_fix_return+'\n'
+        function_body_fix_return = function_body_fix_return + '\n'
         function_name = 'fuzzopt'
         self_calling = '('
         for i in range(parameter_count):
-            self_calling += f'OPTParameter{i}'+','
+            self_calling += f'OPTParameter{i}' + ','
         self_calling = self_calling + ')'
 
         res = ""
@@ -263,12 +263,17 @@ class ThreadLock(Thread):
 
         if "8" in engine_name:
             # v8 %OptimizeFunctionOnNextCall(foo);
-            res += function_body_fix_return + f"%OptimizeFunctionOnNextCall({function_name});\n"
+            res += function_body_fix_return + f"%PrepareFunctionForOptimization({function_name});\n"
+            res += function_name + self_calling + ';\n'
+            res += f"%OptimizeFunctionOnNextCall({function_name});\n"
             res += Suffix
+            print(res)
+
         elif "jsc" in engine_name:
+            # 将触发SpiderMonkey两层的编译器的阈值分别设置为10和100；将JavaScriptCore三层的编译器的阈值自定义为20、100和1000；将ChakraCore的Simple JIT阈值设置为20，将Full JIT阈值设置为100
             res += function_body_fix_return + f"for (let i = 0 ; i < 30 ; i++) {{{function_name + self_calling}}}\n"
-            res += f"for (let i = 0 ; i < 75 ; i++) {{{function_name + self_calling}}}\n"
             res += f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
+            res += f"for (let i = 0 ; i < 1500 ; i++) {{{function_name + self_calling}}}\n"
             res += Suffix
 
         elif "chakra" in engine_name:
@@ -276,9 +281,10 @@ class ThreadLock(Thread):
             res += f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
             res += Suffix
         elif "spiderMonkey" in engine_name:
-            res += function_body_fix_return + f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
-            res += f"for (let i = 0 ; i < 300 ; i++) {{{function_name + self_calling}}}\n"
+            res += function_body_fix_return + f"for (let i = 0 ; i < 15 ; i++) {{{function_name + self_calling}}}\n"
+            res += f"for (let i = 0 ; i < 150 ; i++) {{{function_name + self_calling}}}\n"
             res += Suffix
+        # print(res)
         return res
 
     def run_test_case(self, testcase_id: int, testbed_location: str, testcase_path: pathlib.Path, testbed_id,

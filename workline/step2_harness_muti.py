@@ -24,7 +24,8 @@ table_Testcases = Table_Testcase()
 # 获取未差分过得测试用例,进行差分，并将差分后的结果插入到数据库中
 
 # list_unharness = table_Testcases.selectIdFromTableTestcase(1)
-list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
+# list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
+list_unharness = table_Testcases.getIdLimitFromTableTestcase(10000, 20000)
 # pbar = tqdm(total=len(list_unharness))
 
 print("一共有%d条未差分的测试用例" % len(list_unharness))
@@ -37,16 +38,38 @@ def muti_harness(testcase):
     # pbar.update(1)
     # start_time = time.time()
     # # 获得差分结果，各个引擎输出
-    try:
-        harness_result = testcase_object.engine_run_testcase()
-        different_result_list = harness_result.differential_test()
-        if len(different_result_list):
-            print(testcase_object.Id)
-            print(testcase_object.Testcase_context)
-            print(different_result_list)
-    except:
-        print(f"-----{testcase_object.Id}-----")
+    # try:
+    #     harness_result = testcase_object.engine_run_testcase()
+    #     different_result_list = harness_result.differential_test()
+    #     if len(different_result_list):
+    #         for interesting_test_result in different_result_list:
+    #             # print(interesting_test_result)
+    #             if interesting_test_result.testbed_name == "d8" and "use asm" in harness_result.testcase_context:
+    #                 pass
+    #             elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "crash" and "The futex facility returned an unexpected error code" in harness_result.outputs[2]:
+    #                 pass
+    #             else:
+    #                 print(
+    #                     f"用例id:{interesting_test_result.testcase_id}，错误类型{interesting_test_result.error_type},错误引擎{interesting_test_result.testbed_name}, http://10.15.0.38:18887/analysis/harness?id={interesting_test_result.testcase_id}")
+    # except:
+    #     print(f"-----{testcase_object.Id}-----")
 
+    harness_result = testcase_object.engine_run_testcase()
+    different_result_list = harness_result.differential_test()
+    if len(different_result_list):
+        for interesting_test_result in different_result_list:
+            # print(interesting_test_result)
+            if interesting_test_result.testbed_name == "d8" and "use asm" in harness_result.testcase_context:
+                pass
+            elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "crash" and "The futex facility returned an unexpected error code" in harness_result.outputs[2]:
+                pass
+            elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Majority JS engines throw runtime error/exception" and "u" in harness_result.testcase_context:
+                pass
+            elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Most JS engines pass" and ".matchAll" in harness_result.testcase_context:
+                pass
+            else:
+                print(
+                    f"用例id:{interesting_test_result.testcase_id}，错误类型{interesting_test_result.error_type},错误引擎{interesting_test_result.testbed_name}, http://10.15.0.38:18887/analysis/harness?id={interesting_test_result.testcase_id}")
     # print(harness_result)
 
     # Cov_info = testcase_object.getCov()
@@ -118,6 +141,8 @@ def muti_harness(testcase):
         # print(f'共耗时{int(time.time() - start_time)}秒')
         # 更新testcases表中的fuzzing次数和interesting次数,覆盖率信息
         testcase_object.updateFuzzingTimesInterestintTimesCovInfo()
+
+
 pool = ThreadPool()
 results = pool.map(muti_harness, list_unharness)
 pool.close()

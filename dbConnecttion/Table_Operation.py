@@ -124,7 +124,6 @@ class Table_Function(object):
         return res
 
 
-
 # 对表Table_Testcase进行操作
 class Table_Testcase(object):
     '''
@@ -170,6 +169,19 @@ class Table_Testcase(object):
         """
         # 注意在数据库操作时无 %d ,全部字段都用%s来匹配，无论哪种数据类型。
         sql = f'select * from Table_Testcase'
+        res = self.__table.getAll(sql)
+        self.__table.dispose()
+        return res
+
+    def getIdLimitFromTableTestcase(self, start, end):
+        """
+        条件查询全部符合的数据\n
+        查询初始的用例即SourceFun_id==0用例\n
+        :param SourceFun_id: 父用例id
+        :return:所有符合条件的数据的List
+        """
+        # 注意在数据库操作时无 %d ,全部字段都用%s来匹配，无论哪种数据类型。
+        sql = f'select * from Table_Testcase where id between {start} and {end}'
         res = self.__table.getAll(sql)
         self.__table.dispose()
         return res
@@ -230,7 +242,6 @@ class Table_Testcase(object):
 
         return res
 
-
     def selectSourceTestcaseIdFromTableTestcase(self, SourceTestcase_id):
         sql = f'select * from Table_Testcase where SourceTestcase_id={SourceTestcase_id}'
         res = self.__table.getAll(sql)
@@ -251,8 +262,7 @@ class Table_Testcase(object):
         res = self.__table.getAll(sql)
         return res
 
-    def selectEngine_coverage_integration_all_is_null_and_MutationTimeIsNOT0RangeFromTableTestcase(self,start,end):
-
+    def selectEngine_coverage_integration_all_is_null_and_MutationTimeIsNOT0RangeFromTableTestcase(self, start, end):
         sql = f'select * from Table_Testcase where Engine_coverage_integration_all is null and Mutation_method = 0 and Mutation_times !=0 and id between {start} and {end}'
         res = self.__table.getAll(sql)
         self.__table.dispose()
@@ -290,7 +300,6 @@ class Table_Testcase(object):
         self.__table.dispose()
 
         return res
-
 
     # 插入多条数据,可避免数据库多次打开关闭。
     '''
@@ -351,6 +360,7 @@ class Table_Testcase(object):
         res = self.__table.update(sql, prames)
         self.__table.dispose()
         return res
+
 
 #
 # # Table_Result
@@ -462,10 +472,9 @@ class Table_Testbed(object):
         # 实例化 DataBaseHandle()
         self.__table = MyPymysqlPool()
 
-
     def getAllFromTableTestbed(self):
         sql = 'select * from Table_Testbed'
-        return self.__table.getAll(sql)#
+        return self.__table.getAll(sql)  #
 #
 # class Table_Suspicious_Result(object):
 #

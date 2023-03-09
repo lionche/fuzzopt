@@ -17,7 +17,7 @@ args = [('d8', '11.3.70', '/root/engine/v8-debug/v8-debug --allow-natives-syntax
         ('chakra', 'ch version 1.13.0.0-beta',
          '/root/engine/ch --maxinterpretcount:20 --maxsimplejitruncount:100 --bgjit --oopjit', None),
         ('jsc', 'WebKit-7616.1.4',
-         '/root/engine/jsc --validateOptions=true --thresholdForJITSoon=20 --thresholdForJITAfterWarmUp=20 --thresholdForOptimizeAfterWarmUp=50 --thresholdForOptimizeAfterLongWarmUp=50 --thresholdForOptimizeSoon=50 --thresholdForFTLOptimizeAfterWarmUp=100 --thresholdForFTLOptimizeSoon=100 --validateBCE=true',
+         '/root/engine/jsc --validateOptions=true --thresholdForJITSoon=20 --thresholdForJITAfterWarmUp=20 --thresholdForOptimizeAfterWarmUp=100 --thresholdForOptimizeAfterLongWarmUp=100 --thresholdForOptimizeSoon=100 --thresholdForFTLOptimizeAfterWarmUp=1000 --thresholdForFTLOptimizeSoon=1000 --validateBCE=true',
          None)]
 
 result = mysql.insertMany(sql, args)

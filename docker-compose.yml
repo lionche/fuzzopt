@@ -32,7 +32,6 @@ services:
   mysql_container_service:
     restart: always
     image: mysql:5.7.36
-    platform: linux/x86_64
     container_name: chebishe_mysql_container
     volumes:
       - ./mysql/source:/docker-entrypoint-initdb.d
