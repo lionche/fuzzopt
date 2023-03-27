@@ -37,9 +37,10 @@ if __name__ == '__main__':
                 cmdlist.append(cmd)
                 count += 1;
         pbar = tqdm(total=count)
-        for i in cmdlist:
-            Accuractrate(i)
-
+        pool = ThreadPool()
+        pool.map(Accuractrate, cmdlist)
+        pool.close()
+        pool.join()
         # print("处理了" + str(count) + "个函数文件！")
         print(name + "生成的用例语法正确率为{:.2%},".format(len(testPassRateSet) / count))
         pbar.close()
