@@ -23,7 +23,9 @@ table_Testcases = Table_Testcase()
 
 # 获取未差分过得测试用例,进行差分，并将差分后的结果插入到数据库中
 
-list_unharness = table_Testcases.selectIdFromTableTestcase(1)
+# list_unharness = table_Testcases.selectIdFromTableTestcase(1)
+list_unharness = table_Testcases.getIdLimitFromTableTestcase(1302, 2000)
+
 # list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
 pbar = tqdm(total=len(list_unharness))
 
@@ -32,8 +34,8 @@ pbar = tqdm(total=len(list_unharness))
 for testcase in list_unharness:
     testcase_object = Testcase_Object(testcase)
 
-    print('*' * 25 + f'差分用例{testcase_object.Id}' + '*' * 25)
-    # pbar.update(1)
+    # print('*' * 25 + f'差分用例{testcase_object.Id}' + '*' * 25)
+    pbar.update(1)
     # start_time = time.time()
     # # 获得差分结果，各个引擎输出
     try:
@@ -41,12 +43,32 @@ for testcase in list_unharness:
         # print(harness_result.outputs[3].stdout)
         different_result_list = harness_result.differential_test()
         if len(different_result_list):
+
             # print(harness_result)
             # print(testcase_object.Id)
             # print(testcase_object.Testcase_context)
             # print(different_result_list)
             for interesting_test_result in different_result_list:
-                print(interesting_test_result)
+                # print(interesting_test_result)
+                if interesting_test_result.testbed_name == "d8" and "use asm" in harness_result.testcase_context:
+                    pass
+                elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "crash" and "The futex facility returned an unexpected error code" in \
+                        harness_result.outputs[2]:
+                    pass
+                elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "crash" and "Unexpected identifier after numeric literal" in \
+                        harness_result.outputs[2]:
+                    pass
+                elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Most JS engines pass" and "BigUint64Array" in harness_result.testcase_context:
+                    pass
+                elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Majority JS engines throw runtime error/exception" and "u" in harness_result.testcase_context:
+                    pass
+                elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Most JS engines pass" and "BigInt" in harness_result.testcase_context:
+                    pass
+                elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Most JS engines pass" and ".matchAll" in harness_result.testcase_context:
+                    pass
+                else:
+                    print(
+                        f"用例id:{interesting_test_result.testcase_id}，错误类型{interesting_test_result.error_type},错误引擎{interesting_test_result.testbed_name}, http://10.15.0.38:18887/analysis/harness?id={interesting_test_result.testcase_id}")
     except:
         print(f"-----{testcase_object.Id}-----")
 

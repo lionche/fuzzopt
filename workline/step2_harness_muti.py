@@ -24,8 +24,8 @@ table_Testcases = Table_Testcase()
 # 获取未差分过得测试用例,进行差分，并将差分后的结果插入到数据库中
 
 # list_unharness = table_Testcases.selectIdFromTableTestcase(1)
-# list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
-list_unharness = table_Testcases.getIdLimitFromTableTestcase(10000, 20000)
+list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
+# list_unharness = table_Testcases.getIdLimitFromTableTestcase(1000, 1000)
 # pbar = tqdm(total=len(list_unharness))
 
 print("一共有%d条未差分的测试用例" % len(list_unharness))
@@ -55,21 +55,29 @@ def muti_harness(testcase):
     #     print(f"-----{testcase_object.Id}-----")
 
     harness_result = testcase_object.engine_run_testcase()
-    different_result_list = harness_result.differential_test()
-    if len(different_result_list):
-        for interesting_test_result in different_result_list:
+    # different_result_list = harness_result.differential_test()
+    # if len(different_result_list):
+    #     for interesting_test_result in different_result_list:
             # print(interesting_test_result)
-            if interesting_test_result.testbed_name == "d8" and "use asm" in harness_result.testcase_context:
-                pass
-            elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "crash" and "The futex facility returned an unexpected error code" in harness_result.outputs[2]:
-                pass
-            elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Majority JS engines throw runtime error/exception" and "u" in harness_result.testcase_context:
-                pass
-            elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Most JS engines pass" and ".matchAll" in harness_result.testcase_context:
-                pass
-            else:
-                print(
-                    f"用例id:{interesting_test_result.testcase_id}，错误类型{interesting_test_result.error_type},错误引擎{interesting_test_result.testbed_name}, http://10.15.0.38:18887/analysis/harness?id={interesting_test_result.testcase_id}")
+            # if interesting_test_result.testbed_name == "d8" and "use asm" in harness_result.testcase_context:
+            #     pass
+            # elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "crash" and "The futex facility returned an unexpected error code" in harness_result.outputs[2]:
+            #     pass
+            # elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "crash" and "Unexpected identifier after numeric literal" in harness_result.outputs[2]:
+            #     pass
+            # elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Most JS engines pass" and "BigUint64Array" in harness_result.testcase_context:
+            #     pass
+            # elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Majority JS engines throw runtime error/exception" and "u" in harness_result.testcase_context:
+            #     pass
+            # elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Majority JS engines throw runtime error/exception" and "BigInt" in harness_result.testcase_context:
+            #     pass
+            # elif interesting_test_result.testbed_name == "chakra" and interesting_test_result.error_type == "Most JS engines pass" and ".matchAll" in harness_result.testcase_context:
+            #     pass
+            # elif interesting_test_result.testbed_name == "jsc" and interesting_test_result.error_type == "Most JS engines pass" and ' "returncode": -9,' in harness_result.outputs[1]:
+            #     pass
+            # else:
+            #     print(
+            #         f"用例id:{interesting_test_result.testcase_id}，错误类型{interesting_test_result.error_type},错误引擎{interesting_test_result.testbed_name}, http://10.15.0.38:18887/analysis/harness?id={interesting_test_result.testcase_id}")
     # print(harness_result)
 
     # Cov_info = testcase_object.getCov()
@@ -95,7 +103,7 @@ def muti_harness(testcase):
     # 把结果插入到result数据库中
 
     # 是否存入数据库
-    save2ResultTable = False
+    save2ResultTable = True
     if save2ResultTable:
 
         # 投票
@@ -103,6 +111,7 @@ def muti_harness(testcase):
 
         # 如果一个用例
         if len(different_result_list):
+
             # 触发问题之后再保存可疑结果
             try:
                 # print('触发问题，存入数据库')
@@ -120,6 +129,9 @@ def muti_harness(testcase):
 
             # 可疑结果存入数据库
             for interesting_test_result in different_result_list:
+                print(
+                    f"用例id:{interesting_test_result.testcase_id}，错误类型{interesting_test_result.error_type},错误引擎{interesting_test_result.testbed_name}, http://10.15.0.38:18887/analysis/harness?id={interesting_test_result.testcase_id}")
+
                 # print(interesting_test_result)
                 interesting_test_result.save_to_table_suspicious_Result()
                 # print(interesting_test_result)

@@ -10,7 +10,7 @@ import gc
 from threading import Thread
 from typing import List
 
-from dbConnecttion.Table_Operation import Table_Testbed
+from dbConnecttion.Table_Operation import Table_Testbed, Table_Suspicious_Result, Table_Result
 from utils import labdate
 
 # from workline.mysql_tools.Table_Operation import Table_Result, Table_Suspicious_Result
@@ -45,16 +45,16 @@ class DifferentialTestResult:
     def __str__(self):
         return json.dumps(self.serialize(), indent=4)
 
-    # def save_to_table_suspicious_Result(self):
-    #     """
-    #     Save the result to the database
-    #     :return:
-    #     """
-    #     table_suspicious_Result = Table_Suspicious_Result()
-    #     table_suspicious_Result.insertDataToTableSuspiciousResult(self.error_type, self.testcase_id, self.function_id,
-    #                                                               self.testbed_id,
-    #                                                               self.remark, self.Is_filtered)
-    #
+    def save_to_table_suspicious_Result(self):
+        """
+        Save the result to the database
+        :return:
+        """
+        table_suspicious_Result = Table_Suspicious_Result()
+        table_suspicious_Result.insertDataToTableSuspiciousResult(self.error_type, self.testcase_id, self.function_id,
+                                                                  self.testbed_id,
+                                                                  self.remark, self.Is_filtered)
+
 
 
 class HarnessResult:
@@ -140,20 +140,21 @@ class HarnessResult:
                                                output.testbed_location, output.testbed_name))
         return bugs_info
 
-    # def save_to_table_result(self):
-    #     """
-    #     Save the result to the database.
-    #     :return:
-    #     """
-    #
-    #     # print(f'存入数据库内容：{type(self.engine_coverage)}')
-    #     # print(f'存入数据库内容：{self.engine_coverage}')
-    #     table_result = Table_Result()
-    #     for output in self.outputs:
-    #         table_result.insertDataToTableResult(self.testcase_id, output.testbed_id, output.returncode, output.stdout,
-    #                                              output.stderr, output.duration_ms, 0, None)
+    def save_to_table_result(self):
+        """
+        Save the result to the database.
+        :return:
+        """
+        args = []
+        # print(f'存入数据库内容：{type(self.engine_coverage)}')
+        # print(f'存入数据库内容：{self.engine_coverage}')
+        table_result = Table_Result()
+        for output in self.outputs:
+            # print(output)
+            args.append((self.testcase_id, output.testbed_id, output.returncode, output.stdout,
+                                                       output.stderr, output.duration_ms, 0, None))
 
-
+        table_result.insertManyDataToTableResult(args)
 class Output:
     def __init__(self,
                  testbed_id: int,
@@ -231,7 +232,7 @@ class ThreadLock(Thread):
             testcase_path = pathlib.Path(f.name)
             # 此处手动转换为bytes类型再存储是为了防止代码中有乱码而无法存储的情况
 
-            parameter_count = self.testcase_context.count('var OPTParameter')
+            parameter_count = self.testcase_context.count(' OPTParameter')
 
             jit_testcase = self.get_jit_testcase(self.testcase_context, parameter_count, self.testbed_name)
             # print(jit_testcase)
@@ -267,7 +268,7 @@ class ThreadLock(Thread):
             res += function_name + self_calling + ';\n'
             res += f"%OptimizeFunctionOnNextCall({function_name});\n"
             res += Suffix
-            print(res)
+            # print(res)
 
         elif "jsc" in engine_name:
             # 将触发SpiderMonkey两层的编译器的阈值分别设置为10和100；将JavaScriptCore三层的编译器的阈值自定义为20、100和1000；将ChakraCore的Simple JIT阈值设置为20，将Full JIT阈值设置为100

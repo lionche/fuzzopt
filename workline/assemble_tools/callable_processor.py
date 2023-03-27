@@ -123,7 +123,7 @@ class CallableProcessor:
 
         if not function_body.endswith(';'):
             function_body += ';'
-        function_body = function_body.replace('function(', 'function fuzzopt(')
+        function_body = function_body.replace('function(', 'function fuzzopt(',1)
         param_function_name = 'OPTParameter'
         param_function_count = 0
         if self.functions.__contains__(self.generate_function):
