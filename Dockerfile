@@ -6,7 +6,7 @@ FROM swift:latest
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y python3 python3-pip git openssh-server curl locales clang vim proxychains&& rm -rf /var/lib/apt/lists/*
-RUN ln -s /usr/bin/python3.8 /usr/bin/python
+RUN ln -s /usr/bin/python3.10 /usr/bin/python
 RUN python -m pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip install pyyaml pymysql django django-tables2 tzdata DBUtils -i https://pypi.tuna.tsinghua.edu.cn/simple
 # # RUN pip install torch accelerate protobuf datasets "chardet<3.1.0" "urllib3<=1.25" "sentencepiece<0.1.92" sklearn transformers -i https://pypi.tuna.tsinghua.edu.cn/simple
