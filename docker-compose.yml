@@ -15,11 +15,12 @@ services:
     #保持容器运行
     tty: true
     restart: always
-    ports:
-      - "18889:22"
-      - "18887:18887"
+    network_mode: "host"
 
-    # network_mode: "host"
+#    ports:
+#      - "18889:22"
+#      - "18887:18887"
+
     # deploy:
     #   resources:
     #     reservations:

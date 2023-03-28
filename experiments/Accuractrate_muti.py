@@ -11,22 +11,27 @@ def Accuractrate(cmd):
 
     global testPassRateSet
 
-    pro = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True,
-                           stderr=subprocess.PIPE, universal_newlines=True)
-    stdout, stderr = pro.communicate()
-    pbar.update(1)
-    if pro.returncode == 0:
-        testPassRateSet.add(cmd)
-    else:
+    try:
+        pro = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True,
+                               stderr=subprocess.PIPE, universal_newlines=True)
+        stdout, stderr = pro.communicate()
+        pbar.update(1)
+        if pro.returncode == 0:
+            # print('ok')
+            testPassRateSet.add(cmd)
+        else:
+            pass
+            # print(pro.stderr)
+    except:
         pass
-        # print(pro.stderr)
 
 
 if __name__ == '__main__':
-    v8_cmd = '/root/engine/v8-debug/v8-debug --allow-natives-syntax '
+    v8_cmd = 'timeout -s9 60 /root/engine/v8-debug/v8-debug --allow-natives-syntax '
     # 考虑内存溢出
 
-    for name in ['comfort', 'die', 'fuzzilli', 'codealchemest']:
+    # for name in ['montage','comfort', 'die', 'fuzzilli', 'codealchemist']:
+    for name in ['montage']:
         testPassRateSet = set()
         cmdlist = []
         count = 0
@@ -42,5 +47,5 @@ if __name__ == '__main__':
         pool.close()
         pool.join()
         # print("处理了" + str(count) + "个函数文件！")
-        print(name + "生成的用例语法正确率为{:.2%},".format(len(testPassRateSet) / count))
+        print(name + "生成的用例语义正确率为{:.2%},".format(len(testPassRateSet) / count))
         pbar.close()

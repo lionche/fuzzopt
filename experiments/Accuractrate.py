@@ -26,7 +26,7 @@ if __name__ == '__main__':
     v8_cmd = '/root/engine/v8-debug/v8-debug --allow-natives-syntax '
     # 考虑内存溢出
 
-    for name in ['comfort', 'die', 'fuzzilli', 'codealchemest']:
+    for name in ['montage','comfort', 'die', 'fuzzilli', 'codealchist']:
         testPassRateSet = set()
         cmdlist = []
         count = 0
@@ -41,5 +41,5 @@ if __name__ == '__main__':
             Accuractrate(i)
 
         # print("处理了" + str(count) + "个函数文件！")
-        print(name + "生成的用例语法正确率为{:.2%},".format(len(testPassRateSet) / count))
+        print(name + "生成的用例语义正确率为{:.2%},".format(len(testPassRateSet) / count))
         pbar.close()
