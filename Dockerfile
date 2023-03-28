@@ -21,8 +21,8 @@ ENV HOME /root
 
 # # 安装node
 RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && apt-get install -y nodejs
-RUN npm npm install nyc jsvu jshint commander -g --registry=http://registry.npmmirror.com
-RUN npm install --save-dev @babel/core -g --registry=http://registry.npmmirror.com
+RUN npm install nyc jsvu jshint commander esprima escodegen -g --registry=http://registry.npmmirror.com
+#RUN npm install --save-dev @babel/core -g --registry=http://registry.npmmirror.com
 ENV NODE_PATH /usr/lib/node_modules/
 ENV FUZZOPT /root/fuzzopt
 
