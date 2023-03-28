@@ -23,7 +23,7 @@ def Accuractrate(cmd):
 
 
 if __name__ == '__main__':
-    v8_cmd = '/root/engine/v8-debug/v8-debug --allow-natives-syntax '
+    v8_cmd = 'timeout -s9 60 /root/engine/v8-debug/v8-debug --allow-natives-syntax '
     # 考虑内存溢出
 
     for name in ['montage','comfort', 'die', 'fuzzilli', 'codealchist']:

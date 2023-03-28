@@ -15,24 +15,30 @@ def Accuractrate(cmd):
         pro = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True,
                                stderr=subprocess.PIPE, universal_newlines=True)
         stdout, stderr = pro.communicate()
-        pbar.update(1)
-        if pro.returncode == 0:
-            # print('ok')
-            testPassRateSet.add(cmd)
-        else:
-            pass
-            # print(pro.stderr)
+        # pbar.update(1)
+        if pro.returncode == 0 :
+            print(stdout)
+            # if 'completed compiling' in stdout:
+            #     jitPassRateSet.add(cmd)
+            # if 'bailout' in stdout:
+            #     bailoutRate.add(cmd)
+            # else:
+            #     print(stdout)
+        # else:
+        #
+        #     pass
     except:
         pass
 
 
 if __name__ == '__main__':
-    v8_cmd = 'timeout -s9 60 /root/engine/v8-debug/v8-debug --allow-natives-syntax '
+    v8_cmd = 'timeout -s9 60 /root/engine/v8-debug/v8-debug --allow-natives-syntax --trace-opt --trace-deopt '
     # 考虑内存溢出
 
-    # for name in ['comfort', 'die', 'fuzzilli', 'codealchemist']:
-    for name in ['jitfunfuzz']:
-        testPassRateSet = set()
+    # for name in ['montage','comfort', 'die', 'fuzzilli', 'codealchemist']:
+    for name in ['codealchemist']:
+        jitPassRateSet = set()
+        bailoutRate = set()
         cmdlist = []
         count = 0
         # path = f"/root/fuzzopt/experiments/corpus/{name}/"
@@ -48,5 +54,6 @@ if __name__ == '__main__':
         pool.close()
         pool.join()
         # print("处理了" + str(count) + "个函数文件！")
-        print(name + "生成的用例语义正确率为{:.2%},".format(len(testPassRateSet) / count))
+        print(name + "生成的用例jit编译率正确率为{:.2%},".format(len(jitPassRateSet) / count))
+        print(name + f"中bailout的数量为{len(bailoutRate)}")
         pbar.close()

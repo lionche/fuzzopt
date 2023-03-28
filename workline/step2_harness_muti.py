@@ -24,8 +24,8 @@ table_Testcases = Table_Testcase()
 # 获取未差分过得测试用例,进行差分，并将差分后的结果插入到数据库中
 
 # list_unharness = table_Testcases.selectIdFromTableTestcase(1)
-list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
-# list_unharness = table_Testcases.getIdLimitFromTableTestcase(1000, 1000)
+# list_unharness = table_Testcases.selectFuzzingTimeFromTableTestcase(0)
+list_unharness = table_Testcases.getIdLimitFromTableTestcase(0, 10000)
 # pbar = tqdm(total=len(list_unharness))
 
 print("一共有%d条未差分的测试用例" % len(list_unharness))
