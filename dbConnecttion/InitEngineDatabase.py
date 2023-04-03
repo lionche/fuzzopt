@@ -3,7 +3,6 @@ from pathlib import Path
 
 BASE_DIR = str(Path(__file__).resolve().parent.parent)
 sys.path.append(BASE_DIR)
-print(BASE_DIR)
 from MySqlConn import MyPymysqlPool
 
 mysql = MyPymysqlPool()

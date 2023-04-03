@@ -1,9 +1,14 @@
-jitcount = 0
+for name in ['jitfunfuzz','montage','comfort', 'die', 'fuzzilli', 'codealchemist']:
+# for name in ['montage', 'die', 'fuzzilli', 'codealchemist']:
+    jitcount = 0
+    endcount = 0
 
-with open('jitpass.log', 'r',encoding = "ISO-8859-1") as f:
+    with open(f'{name}.log', 'r') as f:
+        for line in f:
+            if 'completed compiling' in line:
+                jitcount += 1
+            if '<|end|>' in line:
+                endcount += 1
 
-    for line in f:
-        if 'completed compiling' in line:
-            jitcount += 1
-
-print(f'The phrase "completed compiling" appears {jitcount} times in the text file.')
+    print(f'{name} jit count {jitcount} ')
+    print(f'{name} pass count {endcount}')

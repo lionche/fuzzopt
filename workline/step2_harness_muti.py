@@ -103,7 +103,7 @@ def muti_harness(testcase):
     # 把结果插入到result数据库中
 
     # 是否存入数据库
-    save2ResultTable = True
+    save2ResultTable = False
     if save2ResultTable:
 
         # 投票
